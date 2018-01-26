@@ -7,7 +7,11 @@ resource "digitalocean_droplet" "helmsman" {
   ipv6               = "False"
   private_networking = "True"
   ssh_keys           = ["${var.ssh_id}"]
-  tags               = ["${digitalocean_tag.tag-k8s.id}", "${digitalocean_tag.tag-tf.id}"]
+
+  tags = [
+    "${digitalocean_tag.k8s.id}",
+    "${digitalocean_tag.master.id}",
+  ]
 
   provisioner "remote-exec" {
     connection {
@@ -27,7 +31,7 @@ resource "digitalocean_droplet" "helmsman" {
       "wget wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml",
       "rm .bashrc",
       "wget ${var.s3bash_url}",
-      "echo 'source <(kubectl completion bash)' | sudo tee -a .bashrc", 
+      "echo 'source <(kubectl completion bash)' | sudo tee -a .bashrc",
     ]
   }
 }
@@ -42,7 +46,10 @@ resource "digitalocean_droplet" "oarsmen" {
   ipv6               = "False"
   private_networking = "True"
   ssh_keys           = ["${var.ssh_id}"]
-  tags               = ["${digitalocean_tag.tag-k8s.id}", "${digitalocean_tag.tag-tf.id}"]
+  tags = [
+    "${digitalocean_tag.k8s.id}",
+    "${digitalocean_tag.worker.id}",
+  ]
 
   provisioner "remote-exec" {
     connection {

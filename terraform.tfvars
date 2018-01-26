@@ -8,7 +8,7 @@ node_image = "coreos-stable"
 
 node_user = "core"
 
-instances = "3"
+instances = "1"
 
 prefix = "oarsmen"
 

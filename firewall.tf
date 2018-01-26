@@ -1,11 +1,7 @@
 resource "digitalocean_firewall" "ssh" {
   name = "kube-ssh-22"
 
-  droplet_ids = [
-    "${digitalocean_droplet.helmsman.id}",
-    "${digitalocean_droplet.oarsmen.*.id}",
-  ]
-
+  tags = ["${digitalocean_tag.k8s.name}"]
 
   inbound_rule = [
     {
@@ -19,11 +15,7 @@ resource "digitalocean_firewall" "ssh" {
 resource "digitalocean_firewall" "update" {
   name = "kube-update"
 
-  droplet_ids = [
-    "${digitalocean_droplet.helmsman.id}",
-    "${digitalocean_droplet.oarsmen.*.id}",
-  ]
-
+  tags = ["${digitalocean_tag.k8s.name}"]
 
   outbound_rule = [
     {
@@ -47,41 +39,57 @@ resource "digitalocean_firewall" "update" {
   ]
 }
 
-# resource "digitalocean_firewall" "inter" {
-#   name = "kube-cross-node-traffic"
+resource "digitalocean_firewall" "master" {
+  name = "kube-master"
 
+  tags = ["${digitalocean_tag.master.name}"]
 
-#   droplet_ids = [
-#     # "${digitalocean_droplet.helmsman.id}",
-#     # "${digitalocean_droplet.oarsmen.*.id}",
-#   ]
+  inbound_rule = [
+    {
+      protocol   = "tcp"
+      port_range = "6443"
 
+      source_tags = ["${digitalocean_tag.k8s.name}"]
+    },
+    {
+      protocol   = "tcp"
+      port_range = "2379-2380"
 
-#   inbound_rule = [
-#     {
-#       protocol   = "tcp"
-#       port_range = "1-65535"
+      source_tags = ["${digitalocean_tag.k8s.name}"]
+    },
+    {
+      protocol   = "tcp"
+      port_range = "10250-10255"
 
+      source_tags = ["${digitalocean_tag.k8s.name}"]
+    },
+  ]
+}
 
-#       source_addresses = [
-#         "${digitalocean_droplet.helmsman.ipv4_address}",
-#         "${digitalocean_droplet.oarsmen.*.ipv4_address}",
-#       ]
-#     },
-#   ]
+resource "digitalocean_firewall" "worker" {
+  name = "kube-worker"
 
+  tags = ["${digitalocean_tag.worker.name}"]
 
-#   outbound_rule = [
-#     {
-#       protocol   = "tcp"
-#       port_range = "1-65535"
+  inbound_rule = [
+    {
+      protocol   = "tcp"
+      port_range = "10250"
 
+      source_tags = ["${digitalocean_tag.k8s.name}"]
+    },
+    {
+      protocol   = "tcp"
+      port_range = "10255"
 
-#       destination_addresses = [
-#         "${digitalocean_droplet.helmsman.ipv4_address}",
-#         "${digitalocean_droplet.oarsmen.*.ipv4_address}",
-#       ]
-#     },
-#   ]
-# }
+      source_tags = ["${digitalocean_tag.k8s.name}"]
+    },
+    {
+      protocol   = "tcp"
+      port_range = "30000-32767"
+
+      source_tags = ["${digitalocean_tag.k8s.name}"]
+    },
+  ]
+}
 
