@@ -16,8 +16,8 @@ This code provisions a small cluster of droplets (VMs) on DigitalOcean.  After a
 
 * `terraform.tfvars`
   * `ssh_id:` change to your DigitalOcean SSH key md5 fingerprint
-  * `instances:` change to desired number of nodes _(optional)_
-  * `do_region:` change to desired DigitalOcean instance region.  Consider selecting a region with [volume availability][] if you would like to experiment with attached storage. _(optional)_
+  * `node_instances:` change to desired number of worker nodes _(optional)_
+  * `region:` change to desired DigitalOcean instance region.  Consider selecting a region with [volume availability][] if you would like to experiment with attached storage. _(optional)_
 
 * `provider.tf`
   * `token:` change file path to location of your DigitalOcean token string
