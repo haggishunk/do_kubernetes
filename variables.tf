@@ -10,6 +10,12 @@ variable "admin_user" {
   default     = "root"
 }
 
+variable "admin_size" {
+  type        = "string"
+  description = "Droplet RAM"
+  default     = "1GB"
+}
+
 variable "node_image" {
   type        = "string"
   description = "Image name"
@@ -19,32 +25,61 @@ variable "node_image" {
 variable "node_user" {
   type        = "string"
   description = "Node user name"
-  default     = "core"
+  default     = "root"
 }
 
-variable "instances" {
+variable "node_instances" {
   type        = "string"
   description = "Number of droplets to deploy"
   default     = "1"
 }
 
-variable "prefix" {
+variable "node_prefix" {
   type        = "string"
   description = "Basename of droplets"
   default     = "whateveryoulike"
 }
 
-variable "do_region" {
-  # for this project you will want a region with volumes available
+variable "node_size" {
+  type        = "string"
+  description = "Droplet RAM"
+  default     = "1GB"
+}
+
+variable "node_image_core" {
+  type        = "string"
+  description = "Image name"
+  default     = "coreos-stable"
+}
+
+variable "node_user_core" {
+  type        = "string"
+  description = "Node user name"
+  default     = "core"
+}
+
+variable "node_instances_core" {
+  type        = "string"
+  description = "Number of droplets to deploy"
+  default     = "1"
+}
+
+variable "node_prefix_core" {
+  type        = "string"
+  description = "Basename of droplets"
+  default     = "anotherthingyoulike"
+}
+
+variable "node_size_core" {
+  type        = "string"
+  description = "Droplet RAM"
+  default     = "1GB"
+}
+
+variable "region" {
   type        = "string"
   description = "DigitalOcean droplet region"
   default     = "sfo2"
-}
-
-variable "size" {
-  type        = "string"
-  description = "Droplet RAM"
-  default     = "512MB"
 }
 
 variable "ssh_id" {

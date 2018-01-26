@@ -4,17 +4,29 @@ admin_image = "ubuntu-16-04-x64"
 
 admin_user = "root"
 
-node_image = "coreos-stable"
+admin_size = "1GB"
 
-node_user = "core"
+node_image = "ubuntu-16-04-x64"
 
-instances = "1"
+node_user = "root"
 
-prefix = "oarsmen"
+node_size = "1GB"
 
-do_region = "sfo2" # pick a region with volumes avail
+node_instances = "1"
 
-size = "1GB"
+node_prefix = "oarsmen"
+
+node_image_core = "coreos-stable"
+
+node_user_core = "core"
+
+node_size_core = "1GB"
+
+node_instances_core = "0"
+
+node_prefix_core = "coresmen"
+
+region = "sfo2" # pick a region with volumes avail
 
 ssh_id = "6b:89:c0:a4:ea:ef:cf:9c:c3:54:f1:20:61:a4:77:f8"
 

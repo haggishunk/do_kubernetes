@@ -1,8 +1,8 @@
 resource "digitalocean_droplet" "helmsman" {
   image              = "${var.admin_image}"
   name               = "helmsman"
-  region             = "${var.do_region}"
-  size               = "${var.size}"
+  region             = "${var.region}"
+  size               = "${var.admin_size}"
   backups            = "False"
   ipv6               = "False"
   private_networking = "True"
@@ -36,12 +36,12 @@ resource "digitalocean_droplet" "helmsman" {
   }
 }
 
-resource "digitalocean_droplet" "oarsmen" {
-  image              = "${var.node_image}"
-  count              = "${var.instances}"
-  name               = "${var.prefix}-${count.index+1}"
-  region             = "${var.do_region}"
-  size               = "${var.size}"
+resource "digitalocean_droplet" "coresmen" {
+  image              = "${var.node_image_core}"
+  count              = "${var.node_instances_core}"
+  name               = "${var.node_prefix_core}-${count.index+1}"
+  region             = "${var.region}"
+  size               = "${var.node_size_core}"
   backups            = "False"
   ipv6               = "False"
   private_networking = "True"
@@ -54,7 +54,7 @@ resource "digitalocean_droplet" "oarsmen" {
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
-      user        = "${var.node_user}"
+      user        = "${var.node_user_core}"
       private_key = "${file("~/.ssh/id_rsa")}"
     }
 
@@ -74,8 +74,48 @@ resource "digitalocean_droplet" "oarsmen" {
   }
 }
 
+resource "digitalocean_droplet" "oarsmen" {
+  image              = "${var.node_image}"
+  count              = "${var.node_instances}"
+  name               = "${var.node_prefix}-${count.index+1}"
+  region             = "${var.region}"
+  size               = "${var.node_size}"
+  backups            = "False"
+  ipv6               = "False"
+  private_networking = "True"
+  ssh_keys           = ["${var.ssh_id}"]
+  tags = [
+    "${digitalocean_tag.k8s.id}",
+    "${digitalocean_tag.worker.id}",
+  ]
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "${var.node_user}"
+      private_key = "${file("~/.ssh/id_rsa")}"
+    }
+
+    inline = [
+      "apt-get -y update",
+      "apt-get -y upgrade",
+      "apt-get -y install docker.io",
+      "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -",
+      "echo 'deb http://apt.kubernetes.io/ kubernetes-xenial main' > /etc/apt/sources.list.d/kubernetes.list",
+      "apt-get -y update",
+      "apt-get -y install kubeadm=${var.kube_version}-00 kubelet=${var.kube_version}-00",
+      "rm .bashrc",
+      "wget ${var.s3bash_url}",
+    ]
+  }
+}
+
 output "helmsman" {
-  value = "${digitalocean_droplet.helmsman.ipv4_address}"
+  value = "${digitalocean_droplet.helmsman.ipv4_address} (${digitalocean_droplet.helmsman.ipv4_address_private})"
+}
+
+output "coresmen" {
+  value = "${join(",\n", digitalocean_droplet.coresmen.*.ipv4_address)}"
 }
 
 output "oarsmen" {
