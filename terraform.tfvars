@@ -12,7 +12,7 @@ node_user = "root"
 
 node_size = "1GB"
 
-node_instances = "1"
+node_instances = "3"
 
 node_prefix = "oarsmen"
 
