@@ -2,7 +2,7 @@
 
 ### Purpose
 
-This code provisions a small cluster of droplets (VMs) on DigitalOcean.  After applying this code with Terraform you will be left with 1 master node running Ubuntu 16.04 LTS and 3 worker nodes running CoreOS (stable).  Kubeadm, kubectl, and kubelet will be installed on the nodes and the master node will have kubectl bash completion sourced.
+This code provisions a small cluster of droplets (VMs) on DigitalOcean.  After applying this code with Terraform you will be left with 1 master node and 3 worker nodes running Ubuntu 16.04 LTS.  Master node will have `kubeadm`, `kubectl`, and `kubelet` as well as kubectl bash completion activated.  Worker nodes will have `kubeadm` and `kubelet`.
 
 ### Requirements
 
@@ -45,6 +45,12 @@ terraform apply
 user@home:~$ ssh root@123.45.67.89 
 root@helmsman:~$ 
 ```
+
+* * *
+
+To-do:
+
+* Play with CoreOS workers
 
 [digitalocean]:                 https://cloud.digitalocean.com
 [terraform]:                    https://www.terraform.io/downloads.html
