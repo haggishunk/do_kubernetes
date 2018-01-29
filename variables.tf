@@ -1,7 +1,7 @@
 variable "admin_image" {
   type        = "string"
   description = "Admin image slug"
-  default     = "ubuntu-14-04-x64"
+  default     = "ubuntu-16-04-x64"
 }
 
 variable "admin_user" {
@@ -19,7 +19,7 @@ variable "admin_size" {
 variable "node_image" {
   type        = "string"
   description = "Image name"
-  default     = "ubuntu-14-04-x64"
+  default     = "ubuntu-16-04-x64"
 }
 
 variable "node_user" {
@@ -31,7 +31,7 @@ variable "node_user" {
 variable "node_instances" {
   type        = "string"
   description = "Number of droplets to deploy"
-  default     = "1"
+  default     = "3"
 }
 
 variable "node_prefix" {
@@ -61,7 +61,7 @@ variable "node_user_core" {
 variable "node_instances_core" {
   type        = "string"
   description = "Number of droplets to deploy"
-  default     = "1"
+  default     = "0"
 }
 
 variable "node_prefix_core" {
