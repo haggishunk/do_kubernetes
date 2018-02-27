@@ -3,9 +3,10 @@ resource "digitalocean_droplet" "helmsman" {
   name               = "helmsman"
   region             = "${var.region}"
   size               = "${var.admin_size}"
-  backups            = "False"
-  ipv6               = "False"
-  private_networking = "True"
+  backups            = false
+  ipv6               = false
+  private_networking = true
+  monitoring         = false
   ssh_keys           = ["${var.ssh_id}"]
 
   tags = [
@@ -13,111 +14,111 @@ resource "digitalocean_droplet" "helmsman" {
     "${digitalocean_tag.master.id}",
   ]
 
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      user        = "${var.admin_user}"
-      private_key = "${file("~/.ssh/id_rsa")}"
-    }
+  connection {
+    type        = "ssh"
+    user        = "root"
+    private_key = "${file(var.ssh_pri_file)}"
+  }
 
-    inline = [
-      "apt-get -y update",
-      "apt-get -y upgrade",
-      "apt-get -y install docker.io",
-      "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -",
-      "echo 'deb http://apt.kubernetes.io/ kubernetes-xenial main' > /etc/apt/sources.list.d/kubernetes.list",
-      "apt-get -y update",
-      "apt-get -y install kubeadm=${var.kube_version}-00 kubelet=${var.kube_version}-00 kubectl=${var.kube_version}-00",
-      "wget wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml",
-      "rm .bashrc",
-      "wget ${var.s3bash_url}",
-      "echo 'source <(kubectl completion bash)' | sudo tee -a .bashrc",
-    ]
+  # create admin acct
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.newuser.rendered}"]
   }
 }
 
-resource "digitalocean_droplet" "coresmen" {
-  image              = "${var.node_image_core}"
-  count              = "${var.node_instances_core}"
-  name               = "${var.node_prefix_core}-${count.index+1}"
-  region             = "${var.region}"
-  size               = "${var.node_size_core}"
-  backups            = "False"
-  ipv6               = "False"
-  private_networking = "True"
-  ssh_keys           = ["${var.ssh_id}"]
-  tags = [
-    "${digitalocean_tag.k8s.id}",
-    "${digitalocean_tag.worker.id}",
-  ]
+resource "null_resource" "helmsman" {
+  # connect with admin acct
+  connection {
+    type        = "ssh"
+    host        = "${digitalocean_droplet.helmsman.ipv4_address}"
+    user        = "${var.user}"
+    private_key = "${file(var.ssh_pri_file)}"
+  }
 
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      user        = "${var.node_user_core}"
-      private_key = "${file("~/.ssh/id_rsa")}"
-    }
+  # install docker, kubeadm, kubectl, kubelet
+  provisioner "remote-exec" "kubernetes" {
+    inline = ["${data.template_file.kubernetes.rendered}"]
+  }
 
-    inline = [
-      "sudo mkdir -p /opt/cni/bin",
-      "curl -L 'https://github.com/containernetworking/plugins/releases/download/v${var.cni_version}/cni-plugins-amd64-v${var.cni_version}.tgz' | sudo tar -C /opt/cni/bin -xz",
-      "sudo mkdir -p /opt/bin",
-      "curl -L --remote-name-all https://storage.googleapis.com/kubernetes-release/release/${var.kube_version}/bin/linux/amd64/kubeadm | sudo tee /opt/bin/kubeadm",
-      "curl -L --remote-name-all https://storage.googleapis.com/kubernetes-release/release/${var.kube_version}/bin/linux/amd64/kubelet | sudo tee /opt/bin/kubelet",
-      "curl -sSL 'https://raw.githubusercontent.com/kubernetes/kubernetes/v${var.kube_version}/build/debs/kubelet.service' | sed 's:/usr/bin:/opt/bin:g' | sudo tee /etc/systemd/system/kubelet.service",
-      "sudo mkdir -p /etc/systemd/system/kubelet.service.d",
-      "curl -sSL 'https://raw.githubusercontent.com/kubernetes/kubernetes/v${var.kube_version}/build/debs/10-kubeadm.conf' | sed 's:/usr/bin:/opt/bin:g' | sudo tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
-      "sudo systemctl enable kubelet && sudo systemctl start kubelet",
-      "sudo rm .bashrc",
-      "wget ${var.s3bash_url}",
-    ]
+  # make bash pretty
+  provisioner "file" {
+    content     = "${data.template_file.bashrc.rendered}"
+    destination = "/home/${var.user}/.bashrc"
+  }
+
+  # make terminal usable
+  provisioner "file" {
+    content     = "${data.template_file.inputrc.rendered}"
+    destination = "/home/${var.user}/.inputrc"
   }
 }
 
 resource "digitalocean_droplet" "oarsmen" {
   image              = "${var.node_image}"
-  count              = "${var.node_instances}"
+  count              = "${var.node_qty}"
   name               = "${var.node_prefix}-${count.index+1}"
   region             = "${var.region}"
   size               = "${var.node_size}"
-  backups            = "False"
-  ipv6               = "False"
-  private_networking = "True"
+  backups            = false
+  ipv6               = false
+  private_networking = true
+  monitoring         = false
   ssh_keys           = ["${var.ssh_id}"]
+
   tags = [
     "${digitalocean_tag.k8s.id}",
     "${digitalocean_tag.worker.id}",
   ]
 
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      user        = "${var.node_user}"
-      private_key = "${file("~/.ssh/id_rsa")}"
-    }
+  connection {
+    type        = "ssh"
+    user        = "root"
+    private_key = "${file(var.ssh_pri_file)}"
+  }
 
-    inline = [
-      "apt-get -y update",
-      "apt-get -y upgrade",
-      "apt-get -y install docker.io",
-      "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -",
-      "echo 'deb http://apt.kubernetes.io/ kubernetes-xenial main' > /etc/apt/sources.list.d/kubernetes.list",
-      "apt-get -y update",
-      "apt-get -y install kubeadm=${var.kube_version}-00 kubelet=${var.kube_version}-00",
-      "rm .bashrc",
-      "wget ${var.s3bash_url}",
-    ]
+  # create admin acct
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.newuser.rendered}"]
   }
 }
 
-output "helmsman" {
-  value = "${digitalocean_droplet.helmsman.ipv4_address} (${digitalocean_droplet.helmsman.ipv4_address_private})"
+resource "null_resource" "oarsmen" {
+  count = "${var.node_qty}"
+
+  # connect with admin acct
+  connection {
+    type        = "ssh"
+    host        = "${element(digitalocean_droplet.oarsmen.*.ipv4_address, count.index)}"
+    user        = "${var.user}"
+    private_key = "${file(var.ssh_pri_file)}"
+  }
+
+  # install docker, kubeadm, kubectl, kubelet
+  provisioner "remote-exec" "kubernetes" {
+    inline = ["${data.template_file.kubernetes.rendered}"]
+  }
+
+  # make bash pretty
+  provisioner "file" {
+    content     = "${data.template_file.bashrc.rendered}"
+    destination = "/home/${var.user}/.bashrc"
+  }
+
+  # make terminal usable
+  provisioner "file" {
+    content     = "${data.template_file.inputrc.rendered}"
+    destination = "/home/${var.user}/.inputrc"
+  }
 }
 
-output "coresmen" {
-  value = "${join(",\n", digitalocean_droplet.coresmen.*.ipv4_address)}"
+output "helmsman-ip" {
+  value = "${digitalocean_droplet.helmsman.ipv4_address}"
 }
 
-output "oarsmen" {
-  value = "${join(",\n", digitalocean_droplet.oarsmen.*.ipv4_address)}"
+output "helmsman-ssh" {
+  value = "${var.user}@${digitalocean_droplet.helmsman.ipv4_address}"
+}
+
+output "oarsmen-ip" {
+  value = "${digitalocean_droplet.oarsmen.*.ipv4_address}"
 }

@@ -12,7 +12,26 @@ resource "digitalocean_firewall" "ssh" {
   ]
 }
 
-resource "digitalocean_firewall" "update" {
+resource "digitalocean_firewall" "web" {
+  name = "kube-web-80"
+
+  tags = ["${digitalocean_tag.k8s.name}"]
+
+  inbound_rule = [
+    {
+      protocol         = "tcp"
+      port_range       = "80"
+      source_addresses = ["0.0.0.0/0"]
+    },
+    {
+      protocol         = "tcp"
+      port_range       = "443"
+      source_addresses = ["0.0.0.0/0"]
+    },
+  ]
+}
+
+resource "digitalocean_firewall" "outbound" {
   name = "kube-update"
 
   tags = ["${digitalocean_tag.k8s.name}"]
@@ -26,12 +45,6 @@ resource "digitalocean_firewall" "update" {
     },
     {
       protocol   = "udp"
-      port_range = "1-65535"
-
-      destination_addresses = ["0.0.0.0/0"]
-    },
-    {
-      protocol   = "icmp"
       port_range = "1-65535"
 
       destination_addresses = ["0.0.0.0/0"]
@@ -88,7 +101,7 @@ resource "digitalocean_firewall" "worker" {
       protocol   = "tcp"
       port_range = "30000-32767"
 
-      source_tags = ["${digitalocean_tag.k8s.name}"]
+      source_addresses = ["0.0.0.0/0"]
     },
   ]
 }

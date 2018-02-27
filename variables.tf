@@ -1,13 +1,13 @@
+variable "user" {
+  type        = "string"
+  description = "Admin user name"
+  default     = "k8s"
+}
+
 variable "admin_image" {
   type        = "string"
   description = "Admin image slug"
   default     = "ubuntu-16-04-x64"
-}
-
-variable "admin_user" {
-  type        = "string"
-  description = "Admin user name"
-  default     = "root"
 }
 
 variable "admin_size" {
@@ -22,13 +22,7 @@ variable "node_image" {
   default     = "ubuntu-16-04-x64"
 }
 
-variable "node_user" {
-  type        = "string"
-  description = "Node user name"
-  default     = "root"
-}
-
-variable "node_instances" {
+variable "node_qty" {
   type        = "string"
   description = "Number of droplets to deploy"
   default     = "3"
@@ -41,36 +35,6 @@ variable "node_prefix" {
 }
 
 variable "node_size" {
-  type        = "string"
-  description = "Droplet RAM"
-  default     = "1GB"
-}
-
-variable "node_image_core" {
-  type        = "string"
-  description = "Image name"
-  default     = "coreos-stable"
-}
-
-variable "node_user_core" {
-  type        = "string"
-  description = "Node user name"
-  default     = "core"
-}
-
-variable "node_instances_core" {
-  type        = "string"
-  description = "Number of droplets to deploy"
-  default     = "0"
-}
-
-variable "node_prefix_core" {
-  type        = "string"
-  description = "Basename of droplets"
-  default     = "anotherthingyoulike"
-}
-
-variable "node_size_core" {
   type        = "string"
   description = "Droplet RAM"
   default     = "1GB"
@@ -89,6 +53,12 @@ variable "ssh_id" {
   default     = "xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx"
 }
 
+variable "ssh_pri_file" {
+  type = "string"
+  description = "file path of ssh private file"
+  default = "~/.ssh/id_rsa"
+}
+
 variable "kube_version" {
   type        = "string"
   description = "Version of kubeadm, kubelet, kubectl"
@@ -99,10 +69,4 @@ variable "cni_version" {
   type        = "string"
   description = "Version of CNI"
   default     = "0.6.0"
-}
-
-variable "s3bash_url" {
-  type        = "string"
-  description = "URL for bashrc stored on S3"
-  default     = ""
 }
