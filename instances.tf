@@ -15,8 +15,8 @@ resource "digitalocean_droplet" "helmsman" {
   ]
 
   connection {
-    type        = "ssh"
-    user        = "root"
+    type = "ssh"
+    user = "root"
   }
 
   # create admin acct
@@ -28,14 +28,9 @@ resource "digitalocean_droplet" "helmsman" {
 resource "null_resource" "helmsman" {
   # connect with admin acct
   connection {
-    type        = "ssh"
-    host        = "${digitalocean_droplet.helmsman.ipv4_address}"
-    user        = "${var.user}"
-  }
-
-  # install docker, kubeadm, kubectl, kubelet
-  provisioner "remote-exec" "kubernetes" {
-    inline = ["${data.template_file.kubernetes.rendered}"]
+    type = "ssh"
+    host = "${digitalocean_droplet.helmsman.ipv4_address}"
+    user = "${var.user}"
   }
 
   # make bash pretty
@@ -48,6 +43,11 @@ resource "null_resource" "helmsman" {
   provisioner "file" {
     content     = "${data.template_file.inputrc.rendered}"
     destination = "/home/${var.user}/.inputrc"
+  }
+
+  # install docker, kubeadm, kubectl, kubelet
+  provisioner "remote-exec" "kubernetes" {
+    inline = ["${data.template_file.kubernetes.rendered}"]
   }
 }
 
@@ -69,8 +69,8 @@ resource "digitalocean_droplet" "oarsmen" {
   ]
 
   connection {
-    type        = "ssh"
-    user        = "root"
+    type = "ssh"
+    user = "root"
   }
 
   # create admin acct
@@ -84,14 +84,9 @@ resource "null_resource" "oarsmen" {
 
   # connect with admin acct
   connection {
-    type        = "ssh"
-    host        = "${element(digitalocean_droplet.oarsmen.*.ipv4_address, count.index)}"
-    user        = "${var.user}"
-  }
-
-  # install docker, kubeadm, kubectl, kubelet
-  provisioner "remote-exec" "kubernetes" {
-    inline = ["${data.template_file.kubernetes.rendered}"]
+    type = "ssh"
+    host = "${element(digitalocean_droplet.oarsmen.*.ipv4_address, count.index)}"
+    user = "${var.user}"
   }
 
   # make bash pretty
@@ -104,6 +99,11 @@ resource "null_resource" "oarsmen" {
   provisioner "file" {
     content     = "${data.template_file.inputrc.rendered}"
     destination = "/home/${var.user}/.inputrc"
+  }
+
+  # install docker, kubeadm, kubectl, kubelet
+  provisioner "remote-exec" "kubernetes" {
+    inline = ["${data.template_file.kubernetes.rendered}"]
   }
 }
 
