@@ -17,7 +17,6 @@ resource "digitalocean_droplet" "helmsman" {
   connection {
     type        = "ssh"
     user        = "root"
-    private_key = "${file(var.ssh_pri_file)}"
   }
 
   # create admin acct
@@ -32,7 +31,6 @@ resource "null_resource" "helmsman" {
     type        = "ssh"
     host        = "${digitalocean_droplet.helmsman.ipv4_address}"
     user        = "${var.user}"
-    private_key = "${file(var.ssh_pri_file)}"
   }
 
   # install docker, kubeadm, kubectl, kubelet
@@ -73,7 +71,6 @@ resource "digitalocean_droplet" "oarsmen" {
   connection {
     type        = "ssh"
     user        = "root"
-    private_key = "${file(var.ssh_pri_file)}"
   }
 
   # create admin acct
@@ -90,7 +87,6 @@ resource "null_resource" "oarsmen" {
     type        = "ssh"
     host        = "${element(digitalocean_droplet.oarsmen.*.ipv4_address, count.index)}"
     user        = "${var.user}"
-    private_key = "${file(var.ssh_pri_file)}"
   }
 
   # install docker, kubeadm, kubectl, kubelet
