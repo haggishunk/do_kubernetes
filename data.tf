@@ -2,7 +2,7 @@ data "template_file" "newuser" {
   template = "${file("${path.root}/terraform-template-files/newuser-template.sh")}"
 
   vars {
-    user = "${var.user}"
+    user      = "${var.user}"
   }
 }
 
