@@ -53,10 +53,10 @@ variable "ssh_id" {
   default     = "xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx"
 }
 
-variable "ssh_pri_file" {
-  type = "string"
-  description = "file path of ssh private file"
-  default = "~/.ssh/id_rsa"
+variable "docker_version" {
+  type        = "string"
+  description = "Version of docker"
+  default     = "17.03.2"
 }
 
 variable "kube_version" {
@@ -69,4 +69,16 @@ variable "cni_version" {
   type        = "string"
   description = "Version of CNI"
   default     = "0.6.0"
+}
+
+variable "overlay_network_cidr" {
+  type        = "string"
+  description = "Network CIDR to use for Kubernetes cluster overlay"
+  default     = "10.244.0.0/16"
+}
+
+variable "admin_source_cidr" {
+  type        = "string"
+  description = "Where you are permitted to access the k8s api from"
+  default     = "0.0.0.0/0"
 }
