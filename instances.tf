@@ -45,9 +45,29 @@ resource "null_resource" "helmsman" {
     destination = "/home/${var.user}/.inputrc"
   }
 
-  # install docker, kubeadm, kubectl, kubelet
-  provisioner "remote-exec" "kubernetes" {
+  # install docker
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.docker.rendered}"]
+  }
+
+  # install kubeadm, kubectl, kubelet
+  provisioner "remote-exec" {
     inline = ["${data.template_file.kubernetes.rendered}"]
+  }
+  
+  # flannel config
+  provisioner "file" {
+    content = "${data.template_file.kube-flannel-yaml.rendered}"
+    destination = "/home/${var.user}/kube-flannel.yml"
+  }
+
+  # start cluster with kubeadm
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.kubernetes-start.rendered}"]
+  }
+
+  provisioner "local-exec" {
+    command = "scp -3 -o StrictHostKeyChecking=no ${var.user}@${digitalocean_droplet.helmsman.ipv4_address}:*.pem ."
   }
 }
 
@@ -101,9 +121,35 @@ resource "null_resource" "oarsmen" {
     destination = "/home/${var.user}/.inputrc"
   }
 
-  # install docker, kubeadm, kubectl, kubelet
-  provisioner "remote-exec" "kubernetes" {
+  # install docker
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.docker.rendered}"]
+  }
+
+  # install kubeadm, kubectl, kubelet
+  provisioner "remote-exec" {
     inline = ["${data.template_file.kubernetes.rendered}"]
+  }
+}
+
+resource "null_resource" "crack-the-whip" {
+  count = "${var.node_qty}"
+
+  # connect with admin acct
+  connection {
+    type = "ssh"
+    host = "${element(digitalocean_droplet.oarsmen.*.ipv4_address, count.index)}"
+    user = "${var.user}"
+  }
+
+  # copy the token string to each worker
+  provisioner "local-exec" {
+    command = "scp -3 -o StrictHostKeyChecking=no ${var.user}@${digitalocean_droplet.helmsman.ipv4_address}:kube-join ${var.user}@${element(digitalocean_droplet.helmsman.*.ipv4_address, count.index)}:kube-join"
+  }
+
+  # join the cluster with the token string
+  provisioner "remote-exec" {
+    inline = ["sudo sh kube-join"]
   }
 }
 
