@@ -65,6 +65,12 @@ resource "digitalocean_firewall" "master" {
       source_tags = ["${digitalocean_tag.k8s.name}"]
     },
     {
+      protocol = "tcp"
+      port_range = "6443"
+
+      source_addresses = ["${var.admin_source_cidr}"]
+    },
+    {
       protocol   = "tcp"
       port_range = "2379-2380"
 
