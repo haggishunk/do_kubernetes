@@ -10,3 +10,4 @@ terraform/hosts_file
 terraform.tfvars
 *.tfvars
 plan
+*.pem
