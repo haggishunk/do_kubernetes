@@ -13,7 +13,7 @@ variable "admin_image" {
 variable "admin_size" {
   type        = "string"
   description = "Droplet RAM"
-  default     = "1GB"
+  default     = "4GB"
 }
 
 variable "node_image" {
@@ -37,7 +37,7 @@ variable "node_prefix" {
 variable "node_size" {
   type        = "string"
   description = "Droplet RAM"
-  default     = "1GB"
+  default     = "4GB"
 }
 
 variable "region" {
