@@ -54,7 +54,12 @@ terraform apply plan
 5. When the deployment is complete you should be able to SSH into the node IPs listed in Terraform's output as user `k8s`:
 ```
 user@home:~$ ssh k8s@123.45.67.89 
-k8s@helmsman:~$ 
+k8s@helmsman:~$ kubectl get node
+
+NAME        STATUS    ROLES     AGE       VERSION
+helmsman    Ready     master    45m       v1.9.2
+oarsmen-1   Ready     <none>    36m       v1.9.2
+oarsmen-2   Ready     <none>    36m       v1.9.2
 ```
 
 * * *
