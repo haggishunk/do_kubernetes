@@ -132,7 +132,7 @@ resource "null_resource" "oarsmen" {
   }
 }
 
-resource "null_resource" "crack-the-whip" {
+resource "null_resource" "oarsmen-join-up" {
   count = "${var.node_qty}"
 
   # connect with admin acct
@@ -152,8 +152,8 @@ resource "null_resource" "crack-the-whip" {
     inline = ["sudo sh kube-join"]
   }
 }
-
-output "helmsman-ip" {
+ 
+output "helmsman-ip" { 
   value = "${digitalocean_droplet.helmsman.ipv4_address}"
 }
 
