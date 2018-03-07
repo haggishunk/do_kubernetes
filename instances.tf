@@ -144,7 +144,7 @@ resource "null_resource" "oarsmen-join-up" {
 
   # copy the token string to each worker
   provisioner "local-exec" {
-    command = "scp -3 -o StrictHostKeyChecking=no ${var.user}@${digitalocean_droplet.helmsman.ipv4_address}:kube-join ${var.user}@${element(digitalocean_droplet.helmsman.*.ipv4_address, count.index)}:kube-join"
+    command = "scp -3 -o StrictHostKeyChecking=no ${var.user}@${digitalocean_droplet.helmsman.ipv4_address}:kube-join ${var.user}@${element(digitalocean_droplet.oarsmen.*.ipv4_address, count.index)}:kube-join"
   }
 
   # join the cluster with the token string
