@@ -10,20 +10,31 @@ This code provisions a small cluster of droplets (VMs) on DigitalOcean.  After a
 
 * [DigitalOcean][] account
 
+* [ssh-agent][]
+
+### Pre-Funk
+
+1. Create a terraform variable file and specify the id/fingerprint of the ssh public key that you have on DigitalOcean.  You can also override any of the settings defined in the `variables.tf` file:
+
+`$ vim terraform.tfvars`
+```
+ssh_id = "DigitalOcean SSH key ID or md5 fingerprint"
+node_qty =  "count of worker nodes (default 3)"
+region = "region (default sfo2)"
+```
+
+2. Export your DigitalOcean token as an environment variable:
+```
+$ export DIGITALOCEAN_TOKEN="your-long-token-string-here"
+```
+
+3. Initialize ssh-agent and add the SSH key that corresponds to the one you specified above:
+```
+$ eval $(ssh-agent)
+$ ssh-add /path/to/your/id_rsa
+```
+
 ### Instructions
-
-1. Make changes to terraform config files
-
-* `terraform.tfvars`
-  * `ssh_id:` change to your DigitalOcean SSH key md5 fingerprint
-  * `node_instances:` change to desired number of worker nodes _(optional)_
-  * `region:` change to desired DigitalOcean instance region.  Consider selecting a region with [volume availability][] if you would like to experiment with attached storage. _(optional)_
-
-* `provider.tf`
-  * `token:` change file path to location of your DigitalOcean token string
-
-* `instances.tf`
-  * `connection - private_key:` ensure private key file matches fingerprint specified with `ssh_id` above
 
 2. Initialize
 ```
@@ -32,26 +43,27 @@ terraform init
 
 3. Plan
 ```
-terraform plan
+terraform plan -out plan
 ```
 
-4. Deploy and respond with 'yes' at the prompt.
+4. Deploy
 ```
-terraform apply
+terraform apply plan
 ```
 
-5. When the deployment is complete you should be able to SSH into the node IPs listed in Terraform's output
+5. When the deployment is complete you should be able to SSH into the node IPs listed in Terraform's output as user `k8s`:
 ```
-user@home:~$ ssh root@123.45.67.89 
-root@helmsman:~$ 
+user@home:~$ ssh k8s@123.45.67.89 
+k8s@helmsman:~$ 
 ```
 
 * * *
 
 To-do:
 
-* Play with CoreOS workers
+* Integrate Vault
 
 [digitalocean]:                 https://cloud.digitalocean.com
 [terraform]:                    https://www.terraform.io/downloads.html
 [volume availability]:          https://www.digitalocean.com/community/tutorials/how-to-use-block-storage-on-digitalocean
+[ssh-agent]:                    https://linux.die.net/man/1/ssh-agent
