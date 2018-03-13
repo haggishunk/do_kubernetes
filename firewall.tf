@@ -112,3 +112,18 @@ resource "digitalocean_firewall" "worker" {
   ]
 }
 
+resource "digitalocean_firewall" "rook" {
+  name = "rook"
+
+  tags = ["${digitalocean_tag.k8s.name}"]
+
+  inbound_rule = [
+    {
+      protocol   = "tcp"
+      port_range = "8124"
+
+      source_tags = ["${digitalocean_tag.k8s.name}"]
+    },
+  ]
+}
+
