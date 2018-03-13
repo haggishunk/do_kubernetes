@@ -4,22 +4,22 @@ variable "user" {
   default     = "k8s"
 }
 
-variable "admin_image" {
+variable "image" {
   type        = "string"
-  description = "Admin image slug"
+  description = "Image slug"
   default     = "ubuntu-16-04-x64"
+}
+
+variable "admin_prefix" {
+  type        = "string"
+  description = "Basename of droplets"
+  default     = "headhoncho"
 }
 
 variable "admin_size" {
   type        = "string"
   description = "Droplet RAM"
   default     = "4GB"
-}
-
-variable "node_image" {
-  type        = "string"
-  description = "Image name"
-  default     = "ubuntu-16-04-x64"
 }
 
 variable "node_qty" {
@@ -38,6 +38,36 @@ variable "node_size" {
   type        = "string"
   description = "Droplet RAM"
   default     = "4GB"
+}
+
+variable "storage_qty" {
+  type        = "string"
+  description = "Number of droplets to deploy"
+  default     = "3"
+}
+
+variable "storage_prefix" {
+  type        = "string"
+  description = "Basename of droplets"
+  default     = "whateveryoulike"
+}
+
+variable "storage_size" {
+  type        = "string"
+  description = "Droplet RAM"
+  default     = "2GB"
+}
+
+variable "psv" {
+  type        = "string"
+  description = "Turn on/off persistent storage devices"
+  default     = true
+}
+
+variable "size_vol" {
+  type        = "string"
+  description = "Size in GB of psv"
+  default     = 10
 }
 
 variable "region" {
