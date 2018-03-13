@@ -7,3 +7,6 @@ resource "digitalocean_tag" "master" {
 resource "digitalocean_tag" "worker" {
   name = "worker"
 }
+resource "digitalocean_tag" "psv" {
+  name = "psv"
+}
